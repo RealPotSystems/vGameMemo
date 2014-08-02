@@ -5,6 +5,21 @@ using System.Windows.Media;
 
 namespace vGameMemo
 {
+    internal static class DpiChange
+    {
+        public static Point GetDpiScaleFactor(this Visual visual)
+        {
+            var source = PresentationSource.FromVisual(visual);
+            if (source != null && source.CompositionTarget != null)
+            {
+                return new Point(
+                    source.CompositionTarget.TransformToDevice.M11,
+                    source.CompositionTarget.TransformToDevice.M22);
+            }
+            return new Point(1.0, 1.0);
+        }
+    }
+
     /// <summary>
     /// MainWindow.xaml の相互作用ロジック
     /// </summary>
@@ -14,7 +29,6 @@ namespace vGameMemo
         public static extern bool DeleteObject(IntPtr hObject);
 
         private KeyboardHandlerMulti kbh;
-        private bool _closed = true;
         private bool _captured = false;
         MemoWindow _mw = new MemoWindow();
         public MainWindow()
@@ -43,6 +57,11 @@ namespace vGameMemo
             {
                 _mw.Memo.Strokes.Clear();
 
+                var dpiScaleFactor = DpiChange.GetDpiScaleFactor(this);
+
+                var deviceWidth = dpiScaleFactor.X;
+                var deviceHeight = dpiScaleFactor.Y;
+
                 System.Drawing.Bitmap bmp = ts.Image;
                 IntPtr hBitmap = bmp.GetHbitmap();
                 var bitmapSource =
@@ -57,18 +76,13 @@ namespace vGameMemo
 
                 _mw.Owner = this;
                 _mw.Memo.Background = imageBrush;
-                //_mw.Memo.Width = bitmapSource.PixelWidth;
-                //_mw.Memo.Height = bitmapSource.PixelHeight;
-                //_mw.Width = bitmapSource.Width + 6;
-                //_mw.Height = bitmapSource.Height + 6;
-                _mw.Memo.Width = bitmapSource.Width;
-                _mw.Memo.Height = bitmapSource.Height;
-                _mw.Width = bitmapSource.Width + 6;
-                _mw.Height = bitmapSource.Height + 6;
-                _mw.Left = 0;
+                _mw.Memo.Width = bitmapSource.Width / deviceWidth;
+                _mw.Memo.Height = bitmapSource.Height / deviceHeight;
+                _mw.Width = bitmapSource.Width / deviceWidth + 6;
+                _mw.Height = bitmapSource.Height / deviceHeight + 6;
+                _mw.Left = this.Width;
                 _mw.Top = this.Top;
                 _mw.Show();
-                this.Left = _mw.Width;
             }
             else
             {
@@ -77,22 +91,17 @@ namespace vGameMemo
             this.Show();
             ts.Dispose();
             this._captured = true;
-            this._closed = false;
         }
 
         private void LayoutRoot_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            if (_closed && _captured)
+            if ( !_mw.IsVisible && _captured)
             {
                 _mw.Show();
-                this.Left = _mw.Width;
-                _closed = false;
             }
             else
             {
                 _mw.Hide();
-                this.Left = 0;
-                _closed = true;
             }
         }
     }
