@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using System.Windows.Interop;
 
 namespace vGameMemo
 {
@@ -14,6 +15,8 @@ namespace vGameMemo
         internal System.Drawing.Bitmap Image { get; private set; }  
         private Point _position;
         private bool _trimEnable = false;
+        const int WM_SYSKEYDOWN = 0x0104;
+        const int VK_F4 = 0x73;
 
         public TrimScreen()
         {
@@ -28,6 +31,19 @@ namespace vGameMemo
             this.Width = screen.Bounds.Width;
             this.Height = screen.Bounds.Height;
             this.ScreenArea.Geometry1 = new RectangleGeometry(new Rect(0, 0, screen.Bounds.Width, screen.Bounds.Height));
+            HwndSource source = HwndSource.FromHwnd(new WindowInteropHelper(this).Handle);
+            source.AddHook(new HwndSourceHook(WndProc));
+        }
+
+        private static IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+        {
+            if ((msg == WM_SYSKEYDOWN) &&
+                (wParam.ToInt32() == VK_F4))
+            {
+                handled = true;
+            }
+
+            return IntPtr.Zero;
         }
 
         private void DrawingPath_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)

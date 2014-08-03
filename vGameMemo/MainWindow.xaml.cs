@@ -28,7 +28,7 @@ namespace vGameMemo
         [System.Runtime.InteropServices.DllImport("gdi32.dll")]
         public static extern bool DeleteObject(IntPtr hObject);
 
-        private KeyboardHandlerMulti kbh;
+        private KeyboardHandlerMulti kbh = null;
         private bool _captured = false;
         MemoWindow _mw = new MemoWindow();
         public MainWindow()
@@ -91,6 +91,7 @@ namespace vGameMemo
             this.Show();
             ts.Dispose();
             this._captured = true;
+            ts.Close();
         }
 
         private void LayoutRoot_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
@@ -102,6 +103,19 @@ namespace vGameMemo
             else
             {
                 _mw.Hide();
+            }
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            _mw.Close();
+        }
+
+        private void Window_Closed(object sender, EventArgs e)
+        {
+            if ( kbh != null )
+            {
+                kbh.Unregist();
             }
         }
     }

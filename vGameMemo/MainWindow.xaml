@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:ed="http://schemas.microsoft.com/expression/2010/drawing"
         xmlns:vGameMemo="clr-namespace:vGameMemo"
-        Title="vGameMemo" Height="128" Width="32" ResizeMode="NoResize" WindowStyle="None" AllowsTransparency="true" Background="Transparent" Topmost="True" SnapsToDevicePixels="True" IsTabStop="False" ShowInTaskbar="False">
+        Title="vGameMemo" Height="128" Width="32" ResizeMode="NoResize" WindowStyle="None" AllowsTransparency="true" Background="Transparent" Topmost="True" SnapsToDevicePixels="True" IsTabStop="False" ShowInTaskbar="False" Closing="Window_Closing" Closed="Window_Closed">
     <StackPanel x:Name="Stack" Orientation="Horizontal">
         <Canvas x:Name="LayoutRoot" MouseLeftButtonUp="LayoutRoot_MouseLeftButtonUp">
             <Rectangle Fill="#FF9999A6" HorizontalAlignment="Left" Height="128" VerticalAlignment="Top" Width="27" Opacity="0.5"/>
