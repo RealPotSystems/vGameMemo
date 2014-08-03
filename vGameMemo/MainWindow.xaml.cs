@@ -30,21 +30,27 @@ namespace vGameMemo
 
         private KeyboardHandlerMulti kbh = null;
         private bool _captured = false;
-        MemoWindow _mw = new MemoWindow();
+        private bool _ts = false;
+        private MemoWindow _mw = new MemoWindow();
         public MainWindow()
         {
             InitializeComponent();
             this.Left = 0;
-            this.Top = 50;
+            this.Top = 56;
             // ホットキーの設定
             kbh = new KeyboardHandlerMulti(this);
+            //kbh.Regist(ModifierKeys.None, Key.F9, new EventHandler(HotKeyPush_Caputure));
             kbh.Regist(ModifierKeys.Shift | ModifierKeys.Control | ModifierKeys.Alt, Key.C, new EventHandler(HotKeyPush_Caputure));
             kbh.Regist(ModifierKeys.Shift | ModifierKeys.Control | ModifierKeys.Alt, Key.Q, new EventHandler(HotKeyPush_Quit));
         }
 
         private void HotKeyPush_Caputure(object sender, EventArgs e)
         {
-            ScreenCapture();
+            if (!_ts)
+            {
+                _ts = true;
+                ScreenCapture();
+            }
         }
 
         private void HotKeyPush_Quit(object sender, EventArgs e)
@@ -89,15 +95,20 @@ namespace vGameMemo
                 _mw.Top = this.Top;
                 _mw.Memo.Background = imageBrush;
                 _mw.Show();
+                this._captured = true;
             }
             else
             {
-                _mw.Show();
+                if ( this._captured )
+                {
+                    _mw.Show();
+                }
             }
             this.Show();
-            ts.Dispose();
-            this._captured = true;
             ts.Close();
+            ts.Dispose();
+
+            _ts = false;
         }
 
         private void LayoutRoot_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
