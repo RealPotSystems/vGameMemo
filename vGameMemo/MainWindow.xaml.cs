@@ -38,12 +38,18 @@ namespace vGameMemo
             this.Top = 50;
             // ホットキーの設定
             kbh = new KeyboardHandlerMulti(this);
-            kbh.Regist(ModifierKeys.Shift | ModifierKeys.Control, Key.C, new EventHandler(HotKeyPush));
+            kbh.Regist(ModifierKeys.Shift | ModifierKeys.Control | ModifierKeys.Alt, Key.C, new EventHandler(HotKeyPush_Caputure));
+            kbh.Regist(ModifierKeys.Shift | ModifierKeys.Control | ModifierKeys.Alt, Key.Q, new EventHandler(HotKeyPush_Quit));
         }
 
-        private void HotKeyPush(object sender, EventArgs e)
+        private void HotKeyPush_Caputure(object sender, EventArgs e)
         {
             ScreenCapture();
+        }
+
+        private void HotKeyPush_Quit(object sender, EventArgs e)
+        {
+            this.Close();
         }
 
         private void ScreenCapture()
@@ -75,13 +81,13 @@ namespace vGameMemo
                 bmp.Dispose();
 
                 _mw.Owner = this;
-                _mw.Memo.Background = imageBrush;
                 _mw.Memo.Width = bitmapSource.Width / deviceWidth;
                 _mw.Memo.Height = bitmapSource.Height / deviceHeight;
                 _mw.Width = bitmapSource.Width / deviceWidth + 6;
                 _mw.Height = bitmapSource.Height / deviceHeight + 6;
                 _mw.Left = this.Width;
                 _mw.Top = this.Top;
+                _mw.Memo.Background = imageBrush;
                 _mw.Show();
             }
             else
