@@ -2,6 +2,7 @@
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Interop;
 
 namespace vGameMemo
 {
@@ -39,7 +40,8 @@ namespace vGameMemo
             this.Top = 56;
             // ホットキーの設定
             kbh = new KeyboardHandlerMulti(this);
-            //kbh.Regist(ModifierKeys.None, Key.F9, new EventHandler(HotKeyPush_Caputure));
+            
+            kbh.Regist(ModifierKeys.None, Key.F9, new EventHandler(HotKeyPush_Caputure));
             kbh.Regist(ModifierKeys.Shift | ModifierKeys.Control | ModifierKeys.Alt, Key.C, new EventHandler(HotKeyPush_Caputure));
             kbh.Regist(ModifierKeys.Shift | ModifierKeys.Control | ModifierKeys.Alt, Key.Q, new EventHandler(HotKeyPush_Quit));
         }
@@ -109,6 +111,21 @@ namespace vGameMemo
             ts.Dispose();
 
             _ts = false;
+        }
+
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        static extern IntPtr SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        static extern int GetWindowLong(IntPtr hWnd, int nIndex);
+
+        private const int GWL_EXSTYLE = -20;
+        private const int WS_EX_NOACTIVATE = 0x8000000;
+        protected override void OnSourceInitialized(EventArgs e)
+        {
+            base.OnSourceInitialized(e);
+
+            WindowInteropHelper helper = new WindowInteropHelper(this);
+            SetWindowLong(helper.Handle, GWL_EXSTYLE, GetWindowLong(helper.Handle, GWL_EXSTYLE) | WS_EX_NOACTIVATE);
         }
 
         private void LayoutRoot_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)

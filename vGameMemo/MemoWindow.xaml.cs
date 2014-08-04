@@ -37,6 +37,20 @@ namespace vGameMemo
             source.AddHook(new HwndSourceHook(WndProc));
         }
 
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        static extern IntPtr SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        static extern int GetWindowLong(IntPtr hWnd, int nIndex);
+
+        private const int GWL_EXSTYLE = -20;
+        private const int WS_EX_NOACTIVATE = 0x8000000;
+        protected override void OnSourceInitialized(EventArgs e)
+        {
+            base.OnSourceInitialized(e);
+            WindowInteropHelper helper = new WindowInteropHelper(this);
+            SetWindowLong(helper.Handle, GWL_EXSTYLE, GetWindowLong(helper.Handle, GWL_EXSTYLE) | WS_EX_NOACTIVATE);
+        }
+
         private static IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
         {
             if ((msg == WM_SYSKEYDOWN) &&
@@ -44,7 +58,6 @@ namespace vGameMemo
             {
                 handled = true;
             }
-
             return IntPtr.Zero;
         }
     }
