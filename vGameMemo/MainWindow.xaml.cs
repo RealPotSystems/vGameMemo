@@ -33,6 +33,7 @@ namespace vGameMemo
         private bool _captured = false;
         private bool _ts = false;
         private MemoWindow _mw = new MemoWindow();
+        private TrimScreen _tw = null;
         public MainWindow()
         {
             InitializeComponent();
@@ -40,10 +41,32 @@ namespace vGameMemo
             this.Top = 56;
             // ホットキーの設定
             kbh = new KeyboardHandlerMulti(this);
-            
+
+            kbh.Regist(ModifierKeys.None, Key.F8, new EventHandler(HorKeyPush_MemoState));
             kbh.Regist(ModifierKeys.None, Key.F9, new EventHandler(HotKeyPush_Caputure));
+            kbh.Regist(ModifierKeys.None, Key.F10, new EventHandler(HotKeyPush_MemoClear));
             kbh.Regist(ModifierKeys.Shift | ModifierKeys.Control | ModifierKeys.Alt, Key.C, new EventHandler(HotKeyPush_Caputure));
             kbh.Regist(ModifierKeys.Shift | ModifierKeys.Control | ModifierKeys.Alt, Key.Q, new EventHandler(HotKeyPush_Quit));
+        }
+
+        private void HotKeyPush_MemoClear(object sender, EventArgs e)
+        {
+            if ( _captured )
+            {
+                _mw.Memo.Strokes.Clear();
+            }
+        }
+
+        private void HorKeyPush_MemoState(object sender, EventArgs e)
+        {
+            if (!_mw.IsVisible && _captured)
+            {
+                _mw.Show();
+            }
+            else
+            {
+                _mw.Hide();
+            }
         }
 
         private void HotKeyPush_Caputure(object sender, EventArgs e)
@@ -52,6 +75,14 @@ namespace vGameMemo
             {
                 _ts = true;
                 ScreenCapture();
+            }
+            else
+            {
+                if ( _tw.IsVisible )
+                {
+                    _tw.Close();
+                    _tw.Dispose();
+                }
             }
         }
 
@@ -62,11 +93,11 @@ namespace vGameMemo
 
         private void ScreenCapture()
         {
-            TrimScreen ts = new TrimScreen();
-            ts.Owner = this;
+            _tw = new TrimScreen();
+            _tw.Owner = this;
             this.Hide();
             _mw.Hide();
-            bool? result = ts.ShowDialog();
+            bool? result = _tw.ShowDialog();
             if (result == true)
             {
                 _mw.Memo.Strokes.Clear();
@@ -76,7 +107,7 @@ namespace vGameMemo
                 var deviceWidth = dpiScaleFactor.X;
                 var deviceHeight = dpiScaleFactor.Y;
 
-                System.Drawing.Bitmap bmp = ts.Image;
+                System.Drawing.Bitmap bmp = _tw.Image;
                 IntPtr hBitmap = bmp.GetHbitmap();
                 var bitmapSource =
                     System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(
@@ -107,8 +138,8 @@ namespace vGameMemo
                 }
             }
             this.Show();
-            ts.Close();
-            ts.Dispose();
+            _tw.Close();
+            _tw.Dispose();
 
             _ts = false;
         }
