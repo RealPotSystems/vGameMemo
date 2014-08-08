@@ -70,8 +70,7 @@ namespace vGameMemo
             var point = e.GetPosition(path);
             this.Cursor = Cursors.Arrow;
             path.ReleaseMouseCapture();
-            CaptureScreen(point);
-            this.DialogResult = true;
+            this.DialogResult = CaptureScreen(point);
             if (_trimEnable)
             {
                 this.Close();
@@ -101,7 +100,7 @@ namespace vGameMemo
             }
         }
 
-        private void CaptureScreen(Point point)
+        private bool CaptureScreen(Point point)
         {
             var start = PointToScreen(_position);
             var end = PointToScreen(point);
@@ -112,12 +111,13 @@ namespace vGameMemo
             var height = (int)Math.Abs(end.Y - start.Y);
             if (width == 0 || height == 0)
             {
-                return;
+                return false;
             }
 
             this.Image = new System.Drawing.Bitmap(width, height, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
             var graph = System.Drawing.Graphics.FromImage(this.Image);
             graph.CopyFromScreen(new System.Drawing.Point(x, y), new System.Drawing.Point(), this.Image.Size);
+            return true;
         }
 
         public void Dispose()
